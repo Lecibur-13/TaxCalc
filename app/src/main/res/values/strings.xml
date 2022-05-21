@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Aranceles</string>
+    <string name="valor">Valor</string>
+    <string name="_0">0</string>
+    <string name="calcular">Calcular</string>
+    <string name="Peso">Peso</string>
 </resources>
