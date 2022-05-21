@@ -1,8 +1,11 @@
 package com.rubicel.aranceles
 
+import android.content.Context
 import android.icu.text.DecimalFormat
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.InputMethod
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -10,6 +13,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
+import com.airbnb.lottie.LottieAnimationView
 import kotlin.math.roundToInt
 
 
@@ -19,6 +23,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         supportActionBar?.hide()
+
+        //animations
+        val animationMoney: LottieAnimationView = findViewById(R.id.animationMoney);
+        val animationCash: LottieAnimationView = findViewById(R.id.animationCash);
+        animationMoney.repeatCount = 1
+        animationCash.repeatCount = 1
 
         //Calculate Button
         val calculateBtn = findViewById<Button>(R.id.calculateBtn);
@@ -33,18 +43,21 @@ class MainActivity : AppCompatActivity() {
         val shippingCostMessage = findViewById<TextView>(R.id.shippingCostMessage)
         val statusColor = findViewById<ImageView>(R.id.statusColor)
 
-        var valueIsEmpty = false //TODO validar si el campo viene vacio
+        val valueIsEmpty = false //TODO validar si el campo viene vacio
 
         calculateBtn.setOnClickListener {
 
             val formatter = DecimalFormat("#,###")
-            calcCustomValue(formatter, result, statusMessage, statusColor, valueIsEmpty, resultCard)
+            calcCustomValue(animationMoney, animationCash, formatter, result, statusMessage, statusColor, valueIsEmpty, resultCard)
             calcWeight(formatter, shippingCostMessage)
         }
 
     }
 
-    private fun calcCustomValue(formatter: DecimalFormat, result: TextView, statusMessage: TextView, statusColor: ImageView, valueIsEmpty: Boolean, resultCard: CardView){
+    private fun calcCustomValue
+                (animationMoney: LottieAnimationView, animationCash: LottieAnimationView, formatter: DecimalFormat,
+                 result: TextView, statusMessage: TextView, statusColor:
+                 ImageView, valueIsEmpty: Boolean, resultCard: CardView){
         var inputValue = findViewById<EditText>(R.id.customsValue)
 
         if (!valueIsEmpty){
@@ -76,6 +89,8 @@ class MainActivity : AppCompatActivity() {
                 result.text = "$ ${formatter.format(customsValueResult).toString()}"
                 statusMessage.text = statusMessageResult
                 resultCard.visibility = View.VISIBLE
+                closeKeyboard(resultCard)
+                selectAnimation(animationMoney, animationCash)
             }
         } else {
             // TODO enviar mensaje de alerta
@@ -105,4 +120,27 @@ class MainActivity : AppCompatActivity() {
 
         shippingCostMessage.text = "+ $${result} de envío."
     }
+
+    private fun selectAnimation(animationMoney: LottieAnimationView, animationCash: LottieAnimationView){
+        when (((Math.random() * 2) + 1).toInt()) {
+            1 -> {
+                animationMoney.progress = 0F
+                animationMoney.visibility = View.VISIBLE;
+                animationMoney.resumeAnimation()
+                animationCash.visibility = View.GONE;
+            }
+            2 -> {
+                animationCash.progress = 0F
+                animationCash.visibility = View.VISIBLE;
+                animationCash.resumeAnimation()
+                animationMoney.visibility = View.GONE;
+            }
+        }
+    }
+
+    private fun closeKeyboard(view:View){
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
 }
+
